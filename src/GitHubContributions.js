@@ -1,16 +1,26 @@
+// @flow
+
 import React, { Component } from 'react'
 import axios from 'axios'
 
-export default class GitHubContributions extends Component {
-  constructor(props) {
+type Props = {
+  username: string,
+  after: ?string,
+  before: ?string,
+}
+
+type State = {
+  calendarData: Array<{date: string, count: number}>,
+}
+
+export default class GitHubContributions extends Component<Props, State> {
+
+  constructor(props: Props) {
     super(props)
 
     this.state = {
-      calendarSVG: "",
       calendarData: [],
     }
-
-    this.generateURL = this.generateURL.bind(this)
   }
 
   componentWillMount() {
@@ -22,38 +32,49 @@ export default class GitHubContributions extends Component {
 
     const url = this.generateURL(this.props.username)
 
-    req.get(url)
-      .then(res => {
-        const parser = new DOMParser()
-        const domString = res.data.replace(/\r?\n/g, '')
-        const dom = parser.parseFromString(domString, 'application/xml')
+    if (url) {
+      req.get(url)
+        .then(res => {
+          const parser = new DOMParser()
+          const domString = res.data.replace(/\r?\n/g, '')
+          const dom = parser.parseFromString(domString, 'application/xml')
+          const dailyData = dom.querySelectorAll('.day')
 
-        this.setState({
-          calendarSVG: domString,
-          calendarData: dom.querySelectorAll('.day'),
+          let contributeData: Array<{date: string, count: number}> = []
+          for (const data of dailyData) {
+            const date: ?string = data.getAttribute('data-date')
+            const count: ?string = data.getAttribute('data-count')
+
+            if (date && count) {
+              contributeData.push({
+                date: date.toString(),
+                count: parseInt(count),
+              })
+            }
+          }
+
+          this.setState({
+            calendarData: contributeData
+          })
         })
-      })
-      .catch(err => {
-        console.log(err)
-      })
+        .catch(err => {
+          console.log(err)
+        })
+    }
   }
 
   render() {
-    for (const data of this.state.calendarData) {
-      const date = data.getAttribute('data-date')
-      const count = data.getAttribute('data-count')
-      console.log(date + ': ' + count)
-    }
-
     return(
-      <div>
-        { this.state.calendarSVG }
+      <div classname="github-contributions">
       </div>
     )
   }
 
-  generateURL(username) {
-    const url = 'https://github.com/users/' + username + '/contributions'
-    return url
+  generateURL(username: ?string): ?string {
+    if (!!username) {
+      const url: string = 'https://github.com/users/' + username + '/contributions'
+      return url
+    }
+    return null
   }
 }

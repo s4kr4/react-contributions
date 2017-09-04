@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react'
 import axios from 'axios'
+import moment from 'moment'
 
 type Props = {
   username: string,
@@ -65,7 +66,7 @@ export default class GitHubContributions extends Component<Props, State> {
 
   render() {
     return(
-      <div classname="github-contributions">
+      <div className="github-contributions">
       </div>
     )
   }
@@ -76,5 +77,14 @@ export default class GitHubContributions extends Component<Props, State> {
       return url
     }
     return null
+  }
+
+  generateGraphData() {
+    for (const data of this.state.calendarData) {
+      const date: moment = moment(data.date)
+      const count: number = data.count
+
+      console.log(date.format());
+    }
   }
 }

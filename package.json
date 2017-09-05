@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "axios": "^0.16.2",
+    "babel-plugin-transform-runtime": "^6.23.0",
     "moment": "^2.18.1",
     "react": "^15.6.1",
     "react-dom": "^15.6.1"
@@ -43,6 +44,12 @@
       ],
       "react",
       "flow"
+    ],
+    "plugins": [
+      ["transform-runtime", {
+        "polyfill": false,
+        "regenerator": true
+      }]
     ]
   }
 }

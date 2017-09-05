@@ -11,7 +11,7 @@ type Props = {
 }
 
 type State = {
-  calendarData: Array<{date: string, count: number}>,
+  graphData: Array<Array<{date: string, count:number}>>
 }
 
 export default class GitHubContributions extends Component<Props, State> {
@@ -20,53 +20,18 @@ export default class GitHubContributions extends Component<Props, State> {
     super(props)
 
     this.state = {
-      calendarData: [],
+      graphData: []
     }
   }
 
-  componentDidMount() {
-    const req = axios.create({
-      headers: {
-        'Accept': 'text/html'
-      }
-    })
-
+  async componentDidMount() {
     const url = this.generateURL(this.props.username)
+    const contributionData = await this.getContributions(url)
 
-    if (url) {
-      req.get(url)
-        .then(res => {
-          const parser = new DOMParser()
-          const domString = res.data.replace(/\r?\n/g, '')
-          const dom = parser.parseFromString(domString, 'application/xml')
-          const dailyData = dom.querySelectorAll('.day')
-
-          let contributeData: Array<{date: string, count: number}> = []
-          for (const data of dailyData) {
-            const date: ?string = data.getAttribute('data-date')
-            const count: ?string = data.getAttribute('data-count')
-
-            if (date && count) {
-              contributeData.push({
-                date: date.toString(),
-                count: parseInt(count),
-              })
-            }
-          }
-
-          this.setState({
-            calendarData: contributeData
-          })
-        })
-        .catch(err => {
-          console.log(err)
-        })
-    }
+    this.generateGraphData(contributionData)
   }
 
   render() {
-    this.generateGraphData()
-
     return(
       <div className="github-contributions">
       </div>
@@ -75,27 +40,74 @@ export default class GitHubContributions extends Component<Props, State> {
 
   generateURL(username: ?string): ?string {
     if (!!username) {
-      const url: string = 'https://github.com/users/' + username + '/contributions'
+      const url: string = 'https://github.com/users/' + username + '/contributions?to=2017-07-07'
       return url
     }
     return null
   }
 
-  generateGraphData() {
-
-    if (this.state.calendarData.length > 0) {
-      const firstDayData: moment = moment(this.state.calendarData[0].date)
+  generateGraphData(contributionData: Array<{date: string, count: number}>) {
+    if (contributionData.length > 0) {
+      const firstDayData: moment = moment(contributionData[0].date)
       const firstDay: string = firstDayData.format('YYYY-MM-DD')
       const firstWeekDay: number = firstDayData.format('e')
 
       let graphData: Array<Array<{date: string, count:number}>> = []
-      for (const data of this.state.calendarData) {
+      for (let i = 0; i <= 6; ++i) {
+        graphData[i] = [];
+      }
+
+      for (const data of contributionData) {
         const date: moment = moment(data.date)
         const count: number = data.count
 
-        const index: number = Math.abs(date.format('e') - firstWeekDay);
-        console.log(date.format('YYYY-MM-DD') + ': ' + index);
+        const index: number = Math.abs(date.format('e') - firstWeekDay % 6);
+        graphData[index].push({
+          date: date.format('YYYY-MM-DD'),
+          count: count
+        })
       }
+
+      this.setState({
+        graphData: graphData
+      })
     }
+  }
+
+  async getContributions(url: ?string) {
+    const req = axios.create({
+      headers: {
+        'Accept': 'text/html'
+      }
+    })
+
+    let contributionData: Array<{date: string, count: number}> = []
+
+    if (!!url) {
+      await req.get(url)
+        .then(res => {
+          const parser = new DOMParser()
+          const domString = res.data.replace(/\r?\n/g, '')
+          const dom = parser.parseFromString(domString, 'application/xml')
+          const dailyData = dom.querySelectorAll('.day')
+
+          for (const data of dailyData) {
+            const date: ?string = data.getAttribute('data-date')
+            const count: ?string = data.getAttribute('data-count')
+
+            if (date && count) {
+              contributionData.push({
+                date: date.toString(),
+                count: parseInt(count),
+              })
+            }
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    }
+
+    return contributionData
   }
 }

@@ -1,1 +1,1 @@
-module.exports = require('./lib/GitHubContributions');
+module.exports = require('./lib/Contributions');

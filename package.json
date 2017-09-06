@@ -1,9 +1,9 @@
 {
-  "name": "react-github-contributions",
+  "name": "react-contributions",
   "version": "0.0.1",
-  "description": "Show calendar of GitHub Contributions",
+  "description": "Show calendar Contributions",
   "main": "index.js",
-  "repository": "https://github.com/s4kr4/react-github-contributions",
+  "repository": "https://github.com/s4kr4/react-contributions",
   "author": "s4kr4",
   "license": "MIT",
   "devDependencies": {

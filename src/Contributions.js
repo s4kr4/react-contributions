@@ -7,12 +7,13 @@ import moment from 'moment'
 import GitHubData from './GitHubData'
 
 type Props = {
+  GitHub: ?boolean,
   username: string,
   to: ?string,
 }
 
 type State = {
-  graphData: Array<Array<{date: string, count:number}>>
+  graphData: Array<Array<{date: string, count: number}>>
 }
 
 export default class Contributions extends Component<Props, State> {
@@ -33,12 +34,14 @@ export default class Contributions extends Component<Props, State> {
 
   render() {
     let row = []
+    let rowKey = 0
+
     for (const rowData of this.state.graphData) {
       let column = []
       for (const columnData of rowData) {
-        column.push(<td>{columnData.count}</td>)
+        column.push(<td key={columnData.date}>{columnData.count}</td>)
       }
-      row.push(<tr>{column}</tr>)
+      row.push(<tr key={rowKey++}>{column}</tr>)
     }
 
     return(

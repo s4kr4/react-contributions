@@ -26,10 +26,11 @@ export default class Contributions extends Component<Props, State> {
     }
   }
 
-  async componentDidMount() {
-    const gitHubData = await GitHubData.getContributions(this.props.username, this.props.to)
-
-    this.generateGraphData(gitHubData)
+  componentDidMount() {
+    GitHubData.getContributions(this.props.username, this.props.to)
+      .then(gitHubData => {
+        this.generateGraphData(gitHubData)
+      })
   }
 
   render() {

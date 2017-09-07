@@ -6,6 +6,21 @@ import moment from 'moment'
 
 import GitHubData from './GitHubData'
 
+const CELL_COLORS = [
+  '#eee',
+  '#c6e48b',
+  '#7bc96f',
+  '#239a3b',
+  '#196127'
+]
+
+const STYLE = {
+  cell: {
+    height: '10px',
+    width: '10px'
+  }
+}
+
 type Props = {
   GitHub: ?boolean,
   username: string,
@@ -17,6 +32,8 @@ type State = {
 }
 
 export default class Contributions extends Component<Props, State> {
+  countMax: number
+  contributeLevels: Array<number>
 
   constructor(props: Props) {
     super(props)
@@ -24,6 +41,9 @@ export default class Contributions extends Component<Props, State> {
     this.state = {
       graphData: []
     }
+
+    this.countMax = 0
+    this.contributeLevels = []
   }
 
   componentDidMount() {
@@ -40,7 +60,8 @@ export default class Contributions extends Component<Props, State> {
     for (const rowData of this.state.graphData) {
       let column = []
       for (const columnData of rowData) {
-        column.push(<td key={columnData.date}>{columnData.count}</td>)
+        const style = Object.assign({}, STYLE.cell, {backgroundColor: CELL_COLORS[this.getContributeLevel(columnData.count)]})
+        column.push(<td key={columnData.date} style={style} />)
       }
       row.push(<tr key={rowKey++}>{column}</tr>)
     }
@@ -76,11 +97,29 @@ export default class Contributions extends Component<Props, State> {
           date: date.format('YYYY-MM-DD'),
           count: count
         })
+        this.countMax = Math.max(this.countMax, count)
       }
+
+      this.calculateContributeLevels()
 
       this.setState({
         graphData: graphData
       })
+    }
+  }
+
+  calculateContributeLevels(): void {
+    this.contributeLevels.push(0)
+    for (let i = 1; i <= 4; ++i) {
+      this.contributeLevels.push(Math.floor(this.countMax / 4) * i)
+    }
+  }
+
+  getContributeLevel(count: number): number {
+    for (let level = 0; level < 5; ++level) {
+      if (count <= this.contributeLevels[level]) {
+        return level;
+      }
     }
   }
 }

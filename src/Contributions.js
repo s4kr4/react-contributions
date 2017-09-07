@@ -5,6 +5,7 @@ import axios from 'axios'
 import moment from 'moment'
 
 import GitHubData from './GitHubData'
+import QiitaData from '../mock/QiitaData'
 
 const CELL_COLORS = [
   '#eee',
@@ -23,7 +24,9 @@ const STYLE = {
 
 type Props = {
   GitHub: ?boolean,
-  username: string,
+  GitHibUsername: ?string,
+  Qiita: ?boolean,
+  QiitaUsername: ?string,
   to: ?string,
 }
 
@@ -47,9 +50,9 @@ export default class Contributions extends Component<Props, State> {
   }
 
   componentDidMount() {
-    GitHubData.getContributions(this.props.username, this.props.to)
-      .then(gitHubData => {
-        this.generateGraphData(gitHubData)
+    this.getContributionData()
+      .then(contributionData => {
+        this.generateGraphData(contributionData)
       })
   }
 
@@ -75,6 +78,21 @@ export default class Contributions extends Component<Props, State> {
         </table>
       </div>
     )
+  }
+
+  async getContributionData() {
+    let gitHubData = []
+    let qiitaData = []
+
+    if (this.props.GitHub) {
+      gitHubData = await GitHubData.getContributions(this.props.GitHubUsername, this.props.to)
+    }
+
+    if (this.props.Qiita) {
+      qiitaData = await QiitaData.getContributions(this.props.QiitaUsername)
+    }
+
+    return [...gitHubData, ...qiitaData]
   }
 
   generateGraphData(contributionData: Array<{date: string, count: number}>) {
@@ -122,4 +140,9 @@ export default class Contributions extends Component<Props, State> {
       }
     }
   }
+}
+
+Contributions.defaultProps = {
+  GitHub: true,
+  Qiita: false
 }

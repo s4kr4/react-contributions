@@ -23,10 +23,8 @@ const STYLE = {
 }
 
 type Props = {
-  GitHub: ?boolean,
-  GitHibUsername: ?string,
-  Qiita: ?boolean,
-  QiitaUsername: ?string,
+  GitHub: ?string,
+  Qiita: ?string,
   to: ?string,
 }
 
@@ -85,11 +83,11 @@ export default class Contributions extends Component<Props, State> {
     let qiitaData = []
 
     if (this.props.GitHub) {
-      gitHubData = await GitHubData.getContributions(this.props.GitHubUsername, this.props.to)
+      gitHubData = await GitHubData.getContributions(this.props.GitHub, this.props.to)
     }
 
     if (this.props.Qiita) {
-      qiitaData = await QiitaData.getContributions(this.props.QiitaUsername)
+      qiitaData = await QiitaData.getContributions(this.props.Qiita)
     }
 
     return [...gitHubData, ...qiitaData]
@@ -140,9 +138,4 @@ export default class Contributions extends Component<Props, State> {
       }
     }
   }
-}
-
-Contributions.defaultProps = {
-  GitHub: true,
-  Qiita: false
 }

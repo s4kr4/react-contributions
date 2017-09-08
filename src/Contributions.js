@@ -26,6 +26,7 @@ type Props = {
   GitHub: ?string,
   Qiita: ?string,
   to: ?string,
+  colors: Array<string>
 }
 
 type State = {
@@ -61,7 +62,7 @@ export default class Contributions extends Component<Props, State> {
     for (const rowData of this.state.graphData) {
       let column = []
       for (const columnData of rowData) {
-        const style = Object.assign({}, STYLE.cell, {backgroundColor: CELL_COLORS[this.getContributeLevel(columnData.count)]})
+        const style = Object.assign({}, STYLE.cell, {backgroundColor: this.props.colors[this.getContributeLevel(columnData.count)]})
         column.push(<td key={columnData.date} style={style} />)
       }
       row.push(<tr key={rowKey++}>{column}</tr>)
@@ -138,4 +139,8 @@ export default class Contributions extends Component<Props, State> {
       }
     }
   }
+}
+
+Contributions.defaultProps = {
+  colors: CELL_COLORS
 }

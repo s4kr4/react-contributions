@@ -5,7 +5,7 @@ import axios from 'axios'
 import moment from 'moment'
 
 import GitHubData from './GitHubData'
-import QiitaData from '../mock/QiitaData'
+import QiitaData from './QiitaData'
 
 const CELL_COLORS = [
   '#eee',
@@ -23,10 +23,10 @@ const STYLE = {
 }
 
 type Props = {
-  GitHub: ?string,
-  Qiita: ?string,
-  to: ?string,
-  colors: Array<string>
+  GitHub?: string,
+  Qiita?: string,
+  to: string,
+  colors?: Array<string>
 }
 
 type State = {
@@ -36,6 +36,14 @@ type State = {
 export default class Contributions extends Component<Props, State> {
   countMax: number
   contributeLevels: Array<number>
+  to: string
+
+  static defaultProps = {
+    GitHub: '',
+    Qiita: '',
+    to: '',
+    colors: CELL_COLORS
+  }
 
   constructor(props: Props) {
     super(props)
@@ -49,10 +57,12 @@ export default class Contributions extends Component<Props, State> {
   }
 
   componentDidMount() {
-    this.getContributionData()
-      .then(contributionData => {
-        this.generateGraphData(contributionData)
-      })
+    if (moment(this.props.to).isValid()) {
+      this.getContributionData()
+        .then(contributionData => {
+          this.generateGraphData(contributionData)
+        })
+    }
   }
 
   render() {
@@ -83,11 +93,11 @@ export default class Contributions extends Component<Props, State> {
     let gitHubData = []
     let qiitaData = []
 
-    if (this.props.GitHub) {
+    if (this.props.GitHub.length) {
       gitHubData = await GitHubData.getContributions(this.props.GitHub, this.props.to)
     }
 
-    if (this.props.Qiita) {
+    if (this.props.Qiita.length) {
       qiitaData = await QiitaData.getContributions(this.props.Qiita)
     }
 
@@ -105,15 +115,27 @@ export default class Contributions extends Component<Props, State> {
         graphData[i] = [];
       }
 
-      for (const data of contributionData) {
-        const date: moment = moment(data.date)
-        const count: number = data.count
+      for (const contribution of contributionData) {
+        const date: moment = moment(contribution.date)
+        let count: number = contribution.count
 
-        const index: number = Math.abs(date.format('e') - firstWeekDay % 6);
-        graphData[index].push({
-          date: date.format('YYYY-MM-DD'),
-          count: count
-        })
+        const index: number = Math.abs(date.format('e') - firstWeekDay % 6)
+
+        // Merge duplication data
+        let isDuplicate: boolean = false
+        for (const data of graphData[index]) {
+          if (data.date === date.format('YYYY-MM-DD')) {
+            isDuplicate = true
+            data.count += contribution.count
+          }
+        }
+
+        if (!isDuplicate) {
+          graphData[index].push({
+            date: date.format('YYYY-MM-DD'),
+            count: count
+          })
+        }
         this.countMax = Math.max(this.countMax, count)
       }
 
@@ -139,8 +161,4 @@ export default class Contributions extends Component<Props, State> {
       }
     }
   }
-}
-
-Contributions.defaultProps = {
-  colors: CELL_COLORS
 }

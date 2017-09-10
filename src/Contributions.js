@@ -6,6 +6,7 @@ import moment from 'moment'
 
 import GitHubData from './GitHubData'
 import QiitaData from './QiitaData'
+// import QiitaData from '../mock/QiitaData'
 
 const CELL_COLORS = [
   '#eee',
@@ -23,9 +24,9 @@ const STYLE = {
 }
 
 type Props = {
-  GitHub?: string,
+  GitHub: string,
   Qiita?: string,
-  to: string,
+  to?: string,
   colors?: Array<string>
 }
 
@@ -36,7 +37,6 @@ type State = {
 export default class Contributions extends Component<Props, State> {
   countMax: number
   contributeLevels: Array<number>
-  to: string
 
   static defaultProps = {
     GitHub: '',
@@ -57,12 +57,10 @@ export default class Contributions extends Component<Props, State> {
   }
 
   componentDidMount() {
-    if (moment(this.props.to).isValid()) {
-      this.getContributionData()
-        .then(contributionData => {
-          this.generateGraphData(contributionData)
-        })
-    }
+    this.getContributionData()
+      .then(contributionData => {
+        this.generateGraphData(contributionData)
+      })
   }
 
   render() {
@@ -93,9 +91,7 @@ export default class Contributions extends Component<Props, State> {
     let gitHubData = []
     let qiitaData = []
 
-    if (this.props.GitHub.length) {
-      gitHubData = await GitHubData.getContributions(this.props.GitHub, this.props.to)
-    }
+    gitHubData = await GitHubData.getContributions(this.props.GitHub, this.props.to)
 
     if (this.props.Qiita.length) {
       qiitaData = await QiitaData.getContributions(this.props.Qiita)
@@ -105,38 +101,41 @@ export default class Contributions extends Component<Props, State> {
   }
 
   generateGraphData(contributionData: Array<{date: string, count: number}>) {
-    if (contributionData.length > 0) {
-      const firstDayData: moment = moment(contributionData[0].date)
-      const firstDay: string = firstDayData.format('YYYY-MM-DD')
-      const firstWeekDay: number = firstDayData.format('e')
+    let graphData: Array<Array<{date: string, count:number}>> = []
+    for (let i = 0; i <= 6; ++i) {
+      graphData[i] = [];
+    }
 
-      let graphData: Array<Array<{date: string, count:number}>> = []
-      for (let i = 0; i <= 6; ++i) {
-        graphData[i] = [];
-      }
+    if (contributionData.length > 0) {
+      const firstDate: moment = moment(contributionData[0].date)
+      const endDate: moment = this.props.to.length ? moment(this.props.to) : moment(new Date())
 
       for (const contribution of contributionData) {
         const date: moment = moment(contribution.date)
-        let count: number = contribution.count
 
-        const index: number = Math.abs(date.format('e') - firstWeekDay % 6)
+        // Exclude days that is out of range
+        if (date.diff(firstDate, 'days') >= 0 && endDate.diff(date, 'days') >= 0) {
+          const index: number = date.format('e')
+          const count: number = contribution.count
 
-        // Merge duplication data
-        let isDuplicate: boolean = false
-        for (const data of graphData[index]) {
-          if (data.date === date.format('YYYY-MM-DD')) {
-            isDuplicate = true
-            data.count += contribution.count
+          // Merge duplication data
+          let isDuplicate: boolean = false
+          for (const data of graphData[index]) {
+            if (data.date === date.format('YYYY-MM-DD')) {
+              isDuplicate = true
+              data.count += count
+            }
           }
-        }
 
-        if (!isDuplicate) {
-          graphData[index].push({
-            date: date.format('YYYY-MM-DD'),
-            count: count
-          })
+          // Add new data
+          if (!isDuplicate) {
+            graphData[index].push({
+              date: date.format('YYYY-MM-DD'),
+              count: count
+            })
+          }
+          this.countMax = Math.max(this.countMax, count)
         }
-        this.countMax = Math.max(this.countMax, count)
       }
 
       this.calculateContributeLevels()

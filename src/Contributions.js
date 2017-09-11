@@ -91,11 +91,14 @@ export default class Contributions extends Component<Props, State> {
     let gitHubData = []
     let qiitaData = []
 
-    gitHubData = await GitHubData.getContributions(this.props.GitHub, this.props.to)
+    if (this.props.GitHub.length) {
+      gitHubData = await GitHubData.getContributions(this.props.GitHub, this.props.to)
 
-    if (this.props.Qiita.length) {
-      qiitaData = await QiitaData.getContributions(this.props.Qiita)
+      if (this.props.Qiita.length) {
+        qiitaData = await QiitaData.getContributions(this.props.Qiita)
+      }
     }
+
 
     return [...gitHubData, ...qiitaData]
   }

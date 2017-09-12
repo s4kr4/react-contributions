@@ -1,11 +1,15 @@
 {
   "name": "react-contributions",
-  "version": "0.0.1",
-  "description": "Show calendar Contributions",
+  "version": "1.0.0",
+  "description": "Show your contributions calendar",
   "main": "index.js",
   "repository": "https://github.com/s4kr4/react-contributions",
   "author": "s4kr4",
   "license": "MIT",
+  "homepage": "https://github.com/s4kr4/react-contributions#readme",
+  "bugs": {
+    "url": "https://github.com/s4kr4/react-contributions/issues"
+  },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
@@ -37,6 +41,10 @@
     "lint": "eslint src/*.js",
     "test": "mocha --require test/setup.js --compilers js:babel-register test/*.spec.js"
   },
+  "files": [
+    "index.js",
+    "lib"
+  ],
   "babel": {
     "presets": [
       [

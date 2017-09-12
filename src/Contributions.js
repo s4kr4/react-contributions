@@ -6,7 +6,6 @@ import moment from 'moment'
 
 import GitHubData from './GitHubData'
 import QiitaData from './QiitaData'
-// import QiitaData from '../mock/QiitaData'
 
 const CELL_COLORS = [
   '#eee',
@@ -26,8 +25,8 @@ const STYLE = {
 type Props = {
   GitHub: string,
   Qiita?: string,
-  to?: string,
-  colors?: Array<string>
+  to: string,
+  colors: Array<string>
 }
 
 type State = {
@@ -40,7 +39,6 @@ export default class Contributions extends Component<Props, State> {
 
   static defaultProps = {
     GitHub: '',
-    Qiita: '',
     to: '',
     colors: CELL_COLORS
   }
@@ -94,7 +92,7 @@ export default class Contributions extends Component<Props, State> {
     if (this.props.GitHub.length) {
       gitHubData = await GitHubData.getContributions(this.props.GitHub, this.props.to)
 
-      if (this.props.Qiita.length) {
+      if (this.props.Qiita && this.props.Qiita.length) {
         qiitaData = await QiitaData.getContributions(this.props.Qiita)
       }
     }
@@ -162,5 +160,6 @@ export default class Contributions extends Component<Props, State> {
         return level;
       }
     }
+    return 0
   }
 }

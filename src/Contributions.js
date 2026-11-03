@@ -1,7 +1,6 @@
 // @flow
 
-import React, { Component } from 'react'
-import axios from 'axios'
+import { Component } from 'react'
 import moment from 'moment'
 
 import GitHubData from './GitHubData'

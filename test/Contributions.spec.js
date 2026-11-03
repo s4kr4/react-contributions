@@ -1,7 +1,7 @@
-import React from 'react'
+import { createRef } from 'react'
 import sinon from 'sinon'
 import { expect } from 'chai'
-import { mount } from 'enzyme'
+import { render, cleanup } from '@testing-library/react'
 
 import Contributions from '../src/Contributions.js'
 
@@ -21,7 +21,18 @@ const CELL_COLORS = [
   '#335c66'
 ]
 
+// Render the component and return its instance so that props can be inspected
+function mount(element) {
+  const ref = createRef()
+  render({ ...element, ref })
+  return { props: () => ref.current.props }
+}
+
 describe('<Contributions />', () => {
+  afterEach(() => {
+    cleanup()
+  })
+
   it('set props properly', () => {
     const wrapper = mount(<Contributions GitHub="s4kr4" />)
 
@@ -63,7 +74,7 @@ describe('<Contributions />', () => {
     const getContributionData = sinon.spy(Contributions.prototype, 'getContributionData')
     const generateGraphData = sinon.spy(Contributions.prototype, 'generateGraphData')
 
-    const wrapper = mount(<Contributions GitHub="s4kr4" />)
+    mount(<Contributions GitHub="s4kr4" />)
 
     expect(componentDidMount.callCount).to.equal(1)
     expect(getContributionData.callCount).to.equal(1)

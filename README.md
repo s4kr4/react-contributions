@@ -11,6 +11,15 @@ React component to show your contributions calendar.
 - Changable the calendar's color
 
 
+# Installation
+
+```sh
+npm install react-contributions react react-dom
+```
+
+`react` and `react-dom` (v16.14 or later) are peer dependencies.
+
+
 # Usage
 
 ```javascript

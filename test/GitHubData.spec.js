@@ -1,4 +1,3 @@
-import React from 'react'
 import { expect } from 'chai'
 
 import GitHubData from '../src/GitHubData.js'

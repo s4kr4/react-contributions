@@ -4,10 +4,10 @@ import axios from 'axios'
 
 export default class GitHubData {
   static generateURL(username: ?string, to: ?string): ?string {
-    if (!!username) {
+    if (username) {
       let url: string = 'https://github.com/users/' + username + '/contributions'
 
-      if (!!to) {
+      if (to) {
         url += '?to=' + to
       }
 
@@ -27,7 +27,7 @@ export default class GitHubData {
 
     let contributionData: Array<{date: string, count: number}> = []
 
-    if (!!url) {
+    if (url) {
       await req.get(url)
         .then(res => {
           const parser = new DOMParser()

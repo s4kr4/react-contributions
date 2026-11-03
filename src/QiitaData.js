@@ -1,11 +1,10 @@
 // @flow
 
 import axios from 'axios'
-import moment from 'moment'
 
 export default class QiitaData {
   static generateURL(username: ?string, to: ?string): ?string {
-    if (!!username) {
+    if (username) {
       let url: string = 'https://qiita.com/api/v2/users/' + username + '/items'
 
       return url
@@ -24,7 +23,7 @@ export default class QiitaData {
 
     let contributionData: Array<{date: string, count: number}> = []
 
-    if (!!url) {
+    if (url) {
       await req.get(url)
         .then(res => {
           for (const data of res.data) {

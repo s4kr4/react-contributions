@@ -14,7 +14,7 @@ global.window = window;
 global.document = window.document;
 global.HTMLElement = window.HTMLElement;
 global.DOMParser = window.DOMParser;
-global.navigator = {
-  userAgent: 'node.js',
-};
 copyProps(window, global);
+
+// Tell React that tests run inside act() environment
+global.IS_REACT_ACT_ENVIRONMENT = true;
